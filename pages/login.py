@@ -44,3 +44,14 @@ class LoginPage:
     def get_error_message(self) -> str:
         self.sb.wait_for_element_visible(self.ERROR_MESSAGE, timeout=10)
         return self.sb.get_text(self.ERROR_MESSAGE)
+    
+    def clear_and_login(self, username: str, password: str):
+        self.sb.clear(self.USERNAME_INPUT)
+        self.sb.clear(self.PASSWORD_INPUT)
+        self.enter_username(username)
+        self.enter_password(password)
+        self.click_login()
+        return self
+    
+    def is_login_button_disabled(self) -> bool:
+        return self.sb.get_attribute(self.LOGIN_BUTTON, "disabled") is not None 
