@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+downloaded_files/
+session.json
+.env
+latest_logs/
+archived_logs/
