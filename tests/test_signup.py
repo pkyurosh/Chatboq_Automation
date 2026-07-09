@@ -1,9 +1,25 @@
+import pytest
 from seleniumbase import SB
 from pages.signup import SignupPage
 from utils.mailsac import get_temp_email, get_verification_code
 from utils.test_data import get_random_org_name, get_random_domain
-from config import SIGNUP_PASSWORD, MAILSAC_API_KEY, SIGNUP_NAME, SIGNUP_ORG_DESCRIPTION, SIGNUP_INDUSTRY, SIGNUP_LOGO_PATH
+from config import SIGNUP_PASSWORD, MAILSAC_API_KEY, SIGNUP_NAME, SIGNUP_ORG_DESCRIPTION, SIGNUP_INDUSTRY, SIGNUP_LOGO_PATH, VALID_PASS, VALID_USER
 
+
+@pytest.fixture(scope="class")
+def signup_page(request):
+    with SB(uc=True, time_limit=300) as sb:
+        page = SignupPage(sb)
+        page.open()
+        page.click_signup()
+
+        email = get_temp_email()
+        print(f"\nNegative test email: {email}")
+
+        request.cls.email = email
+        request.cls.page  = page
+        request.cls.sb    = sb
+        yield page
 
 class TestSignup:
 
@@ -84,6 +100,78 @@ class TestSignup:
             # Step 20: final org onboarding
             page.click_org_onboarding_success()
 
-            print("\nOrganization setup complete!")
-            input("Press Enter to close browser...")
+
             print("Press Enter to close browser...")
+
+@pytest.mark.usefixtures("signup_page")
+class TestNegativeSignup:
+    def test_already_registered_email(self):
+        self.page.open()
+        self.page.click_signup()
+        self.page.enter_email(VALID_USER)
+        self.page.click_continue_email()
+        self.page.enter_password(VALID_PASS)
+        self.page.click_continue_email()
+        error = self.page.get_error_message()
+        assert "A user with this email already exists" in error, f"Expected'user already exists but got:' {error}"
+
+    def test_invalid_email(self):
+        self.page.clear_and_continue("test@gmaildotcom", "Hello123@")
+        error = self.page.get_error_message()
+        assert "Please enter a valid email address" in error, f"Expected'enter valid address but got'{error}"
+        assert self.page.is_continue_button_disabled(), "Login Button should be disabled"
+
+    @pytest.mark.parametrize("password,expected_error", [
+        ("pass",      "Password must be greater than 8 characters"),
+        ("password",  "Must contain at least one uppercase letter"),
+        ("PASSWORD",  "Must contain at least one lowercase letter"),
+        ("Password",  "Must contain at least one number"),
+        ("Password1", "Must contain at least one special character"),
+    ])
+    def test_weak_password(self, password, expected_error):
+        self.page.clear_and_continue("test@gmail.com", password)
+        error = self.page.get_error_message()
+        assert expected_error in error, f"Expected '{expected_error}' but got: {error}"       
+
+
+    #Signup after all the negtive scenarios
+    def test_proceed_to_verification(self):
+        self.page.clear_and_continue(self.email, SIGNUP_PASSWORD)
+        
+
+    def test_wrong_verification_code(self):
+        self.page.enter_verification_code("12345532")
+        self.page.click_continue_verification()
+        error = self.page.get_error_message()
+        assert "Code Must be exactly 6 digits" in error, f"Expected 'Code Must be exactly 6 digits but got {error}'"
+
+
+    #get verification code from mailsac and log into the system
+
+    def test_proceed_past_verification(self):
+        code = get_verification_code(self.email, MAILSAC_API_KEY)
+        print(f"Entering code: {code}")
+        self.page.enter_verification_code(code)
+        self.page.click_continue_verification()
+
+    @pytest.mark.parametrize("full_name,expected_error",[
+        ("nnn",           "Name must be at least 5 characters"),
+        ("FullName223", "Must contain only letters, spaces, hyphens, and apostrophes"),
+        (" ",           "Name is required"),
+    ])
+
+    def test_invalid_full_name(self, full_name, expected_error):
+        self.page.enter_full_name(full_name)
+        error = self.page.get_error_message()
+        assert expected_error in error, f"Expected '{expected_error}' but got: {error}"
+        assert self.page.is_continue_button_disabled(), "Login Button should be disabled"
+    
+    def test_valid_full_name_no_selector(self):
+        self.page.enter_full_name(SIGNUP_NAME)
+        assert self.page.is_continue_button_enabled(), "Next Button shoould be enabled"
+
+    def test_proceed_past_user_onboarding(self):
+        self.page.click_google_sel()
+        self.page.click_next_btn()
+        
+    print("Press Enter to Close browser")

@@ -24,6 +24,7 @@ class SignupPage:
     TEAM_SIZE          = 'span:contains("50-100 Employees")'
     TOOL_NAME          = 'span:contains("Zendesk")'
     SUCCESS_QUESTION   = 'span:contains("Automate Support Task")'
+    EMAIL_EXISTS       = "span.text-alert-500"
 
     def __init__(self, sb):
         self.sb = sb
@@ -169,3 +170,25 @@ class SignupPage:
         self.sb.js_click('button:contains("Start")')
         self.sb.sleep(3)
         return self
+    
+    def clear_and_continue(self, email: str, password: str):
+        self.sb.clear(self.EMAIL_INPUT)
+        self.sb.clear(self.PASSWORD_INPUT)
+        self.enter_email(email)
+        self.enter_password(password)
+        self.click_continue_email()
+        return self
+    
+    def get_error_message(self) -> str:
+        self.sb.wait_for_element_visible(self.EMAIL_EXISTS, timeout=15)
+        return self.sb.get_text(self.EMAIL_EXISTS)
+    
+    
+    def is_continue_button_disabled(self) -> bool:
+        return self.sb.get_attribute(self.CONTINUE_BUTTON, "disabled") is not None 
+    
+    def is_continue_button_enabled(self) -> bool:
+        return self.sb.get_attribute(self.CONTINUE_BUTTON, "disabled") is None 
+    
+
+    

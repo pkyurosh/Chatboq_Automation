@@ -42,6 +42,12 @@ class TestLoginNegative:
         error = self.page.get_error_message()
         assert "Invalid credentials" in error, f"Expected 'Invalid credentials' but got: {error}"
 
+    def test_edge_case_email(self):
+        self.page.clear_and_login("0000000)))))@gmsssssssssssssssssssssssssss.com", "999999999999999999999")
+        error = self.page.get_error_message()
+        assert "Please enter a valid email address" in error, f"Expected 'Please enter a valid email address' but got: {error}"
+
+
     def test_blank_email(self):
         self.sb.clear(self.page.USERNAME_INPUT)
         self.sb.clear(self.page.PASSWORD_INPUT)
@@ -61,3 +67,4 @@ class TestLoginNegative:
         self.sb.clear(self.page.PASSWORD_INPUT)
         # enter nothing — button should be disabled
         assert self.page.is_login_button_disabled(), "Login button should be disabled when both fields are empty"
+

@@ -55,3 +55,4 @@ class LoginPage:
     
     def is_login_button_disabled(self) -> bool:
         return self.sb.get_attribute(self.LOGIN_BUTTON, "disabled") is not None 
+    

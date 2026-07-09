@@ -3,10 +3,11 @@ import os
 # URLs
 AUTH_URL = os.getenv("AUTH_URL", "https://auths.chatboq.com")
 APP_URL  = os.getenv("APP_URL",  "https://apps.chatboq.com")
+ACCOUNT_SETTINGS = os.getenv("ACCOUNTSETTINGS_URL", "https://apps.chatboq.com/app/959e0317-1b2c-4c56-aa9f-870ae0921464/settings/account-settings/account-information")
 TIMEOUT  = int(os.getenv("TIMEOUT", 10))
 
 # Login credentials
-VALID_USER = os.getenv("LOGIN_USER", "sedocod687@fivejm.com")
+VALID_USER = os.getenv("LOGIN_USER", "cmwihaku@sharklasers.com")
 VALID_PASS = os.getenv("LOGIN_PASS", "Hello123@")
 
 # Signup
