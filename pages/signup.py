@@ -25,6 +25,7 @@ class SignupPage:
     TOOL_NAME          = 'span:contains("Zendesk")'
     SUCCESS_QUESTION   = 'span:contains("Automate Support Task")'
     EMAIL_EXISTS       = "span.text-alert-500"
+    ORG_CONTINUE_BUTTON= 'button:contains("Continue")'
 
     def __init__(self, sb):
         self.sb = sb
@@ -190,5 +191,11 @@ class SignupPage:
     def is_continue_button_enabled(self) -> bool:
         return self.sb.get_attribute(self.CONTINUE_BUTTON, "disabled") is None 
     
+    def is_org_continue_button_enabled(self) -> bool:
+        return self.sb.get_attribute(self.ORG_CONTINUE_BUTTON, "disabled") is None
+
+    def is_org_continue_button_disabled(self) -> bool:
+        return self.sb.get_attribute(self.ORG_CONTINUE_BUTTON, "disabled") is not None
+        
 
     

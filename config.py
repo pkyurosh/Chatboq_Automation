@@ -7,7 +7,7 @@ ACCOUNT_SETTINGS = os.getenv("ACCOUNTSETTINGS_URL", "https://apps.chatboq.com/ap
 TIMEOUT  = int(os.getenv("TIMEOUT", 10))
 
 # Login credentials
-VALID_USER = os.getenv("LOGIN_USER", "cmwihaku@sharklasers.com")
+VALID_USER = os.getenv("LOGIN_USER", "jjcyumyt@sharklasers.com")
 VALID_PASS = os.getenv("LOGIN_PASS", "Hello123@")
 
 # Signup

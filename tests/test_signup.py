@@ -143,7 +143,7 @@ class TestNegativeSignup:
         self.page.enter_verification_code("12345532")
         self.page.click_continue_verification()
         error = self.page.get_error_message()
-        assert "Code Must be exactly 6 digits" in error, f"Expected 'Code Must be exactly 6 digits but got {error}'"
+        assert "Code must be exactly 6 digits" in error, f"Expected 'Code must be exactly 6 digits but got {error}'"     
 
 
     #get verification code from mailsac and log into the system
@@ -173,5 +173,35 @@ class TestNegativeSignup:
     def test_proceed_past_user_onboarding(self):
         self.page.click_google_sel()
         self.page.click_next_btn()
+        self.sb.assert_url_contains("verify/onboarding")
+   
+    def test_org_onboarding(self):
+        self.page.enter_org_details(
+            "--OOOOsklsdOOOOOOO",
+            "--00900.com",
+            "))))))))))))))))))))))))))))))))))))))))))))))))))))"
+        )
+        assert self.page.is_org_continue_button_disabled()
+
+    def test_org_onboarding_duplicate(self):
+        self.page.enter_org_details(
+            "chatboq",
+            get_random_domain(),
+            SIGNUP_ORG_DESCRIPTION
+        )
+        assert self.page.is_org_continue_button_enabled()
+
+        self.page.click_org_continue()
+        self.page.click_continue_industry()
+        self.page.click_next_btn()
+        self.page.click_submit_onboarding()
+
+        error = self.page.get_error_message()
+        assert "chatboq" in error.lower() or "exists" in error.lower(), \
+            f"Expected duplicate org name error but got: {error}"
         
-    print("Press Enter to Close browser")
+
+
+
+    
+    
