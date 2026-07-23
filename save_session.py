@@ -7,7 +7,7 @@ with SB(uc=True) as sb:
     print("Log in manually, then press Enter...")
     input()
     
-    while "apps.chatboq.com" not in sb.get_current_url() and "apps.chatboq.com" not in sb.get_current_url():
+    while "apps.chatboq.com" not in sb.get_current_url():
         time.sleep(1)
     
     cookies = sb.get_cookies()

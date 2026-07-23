@@ -14,7 +14,7 @@ def signup_page(request):
         page.click_signup()
 
         email = get_temp_email()
-        print(f"\nNegative test email: {email}")
+        print(f"\nUsing email: {email}")
 
         request.cls.email = email
         request.cls.page  = page
@@ -123,7 +123,7 @@ class TestNegativeSignup:
 
     @pytest.mark.parametrize("password,expected_error", [
         ("pass",      "Password must be greater than 8 characters"),
-        ("password",  "Must contain at least one uppercase letter"),
+        ("password",  "Must contain at least one uppercase letter"),    
         ("PASSWORD",  "Must contain at least one lowercase letter"),
         ("Password",  "Must contain at least one number"),
         ("Password1", "Must contain at least one special character"),
@@ -131,12 +131,14 @@ class TestNegativeSignup:
     def test_weak_password(self, password, expected_error):
         self.page.clear_and_continue("test@gmail.com", password)
         error = self.page.get_error_message()
-        assert expected_error in error, f"Expected '{expected_error}' but got: {error}"       
+        assert expected_error in error, f"Expected '{expected_error}' but got: {error}" 
+             
 
 
     #Signup after all the negtive scenarios
     def test_proceed_to_verification(self):
         self.page.clear_and_continue(self.email, SIGNUP_PASSWORD)
+       
         
 
     def test_wrong_verification_code(self):
@@ -194,14 +196,37 @@ class TestNegativeSignup:
         self.page.click_org_continue()
         self.page.click_continue_industry()
         self.page.click_next_btn()
+        self.page.click_next_btn()
         self.page.click_submit_onboarding()
+        
 
         error = self.page.get_error_message()
         assert "chatboq" in error.lower() or "exists" in error.lower(), \
             f"Expected duplicate org name error but got: {error}"
         
+    def test_org_domain_duplicate(self):
+        self.page.enter_org_details(
+            get_random_org_name(),
+            "chatboq.com",
+            SIGNUP_ORG_DESCRIPTION
+        )
+        assert self.page.is_org_continue_button_enabled()
 
+        self.page.click_org_continue()
+        self.page.click_continue_industry()
+        self.page.click_next_btn()
+        self.page.click_next_btn()
+        self.page.click_submit_onboarding()
+            
 
+        error = self.page.get_error_message()
+        assert "chatboq" in error.lower() or "exists" in error.lower(), \
+            f"Expected duplicate org name error but got: {error}"
+            
 
+    def test_negative_testing_complete(self):
+        print("\n" + "="*50)
+        print("✅ Negative testing completed for Signup")
+        print("="*50)
     
     
