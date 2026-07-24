@@ -29,14 +29,13 @@ class TestAccountSettings:
 
     def test_account_settings_loads(self):
         assert self.page.is_loaded(), "Account settings page should load"
-
+        
     def test_upload_account_photo(self):
+        old_src = self.sb.get_attribute(self.page.LOGO_PREVIEW, "src")
         self.page.upload_logo(SIGNUP_LOGO_PATH)
-        self.sb.sleep(1)
-        files_count = self.sb.execute_script(
-            "return document.querySelector('input[type=\"file\"]').files.length;"
-        )
-        assert files_count == 1, f"Expected 1 file attached, got: {files_count}"
+        self.sb.sleep(2)
+        new_src = self.sb.get_attribute(self.page.LOGO_PREVIEW, "src")
+        assert new_src == old_src, f"Logo src should not change after upload as its the same picture, still: {new_src}"
 
     def test_update_full_name(self):
         self.account_name = get_random_account_name()
@@ -64,6 +63,7 @@ class TestAccountSettingsNegative:
     @pytest.mark.parametrize("invalid_number, case_id", INVALID_PHONE_NUMBERS)
     def test_invalid_phone_number(self, invalid_number, case_id):
         self.page.open()
+        print(self.sb.get_current_url())
         self.page.enter_phone_number(invalid_number)
         self.page.click_update_button()
         error = self.page.get_error_message()

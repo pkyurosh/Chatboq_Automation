@@ -10,7 +10,9 @@ class AccountSettingsPage:
     PHONE_NUMBER_INPUT     = "#phoneNumber"
     COUNTRY_SELECTOR       = "//label[contains(text(),'Country')]/following::button[@data-slot='popover-trigger'][1]"
     UPDATE_BUTTON          = "button[type='submit']"
-    ERROR_MESSAGE          = "span.text-alert-500"  # ⚠️ confirm this matches actual error element on this page
+    ERROR_MESSAGE          = "span.text-alert-500"
+    LOGO_PREVIEW           = 'img[src*="chatboq-blog-storage-s3"]'
+    REMOVE_IMG_BUTTON      = '(//button[@aria-label="Remove image"])'
 
     def __init__(self, sb):
         self.sb = sb
@@ -24,6 +26,7 @@ class AccountSettingsPage:
         return self.sb.is_text_visible("Account Information")
 
     def upload_logo(self, file_path: str):
+        self.sb.click(self.REMOVE_IMG_BUTTON)
         file_input = self.sb.cdp.find_element(self.FILE_INPUT)
         file_input.send_file(file_path)
         self.sb.sleep(1)

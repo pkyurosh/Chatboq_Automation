@@ -1,10 +1,11 @@
 import os
 
 # URLs
-AUTH_URL = os.getenv("AUTH_URL", "https://auths.chatboq.com")
-APP_URL  = os.getenv("APP_URL",  "https://apps.chatboq.com")
+AUTH_URL         = os.getenv("AUTH_URL", "https://auths.chatboq.com")
+APP_URL          = os.getenv("APP_URL",  "https://apps.chatboq.com")
 ACCOUNT_SETTINGS = os.getenv("ACCOUNTSETTINGS_URL", "https://apps.chatboq.com/app/959e0317-1b2c-4c56-aa9f-870ae0921464/settings/account-settings/account-information")
-TIMEOUT  = int(os.getenv("TIMEOUT", 10))
+OPERATING_HOURS  = os.getenv("OPERATINGHOURS_URL", "https://apps.chatboq.com/app/35e93c98-7fee-414f-9dab-09732fce68cd/settings/organization-settings/operating-hours")
+TIMEOUT          = int(os.getenv("TIMEOUT", 10))
 
 # Login credentials
 VALID_USER = os.getenv("LOGIN_USER", "jjcyumyt@sharklasers.com")
