@@ -4,15 +4,15 @@ from config import ACCOUNT_SETTINGS
 class AccountSettingsPage:
     URL = ACCOUNT_SETTINGS
 
-    FULL_NAME              = "#fullName"
-    FILE_INPUT             = 'input[type="file"]'
-    PHONE_COUNTRY_SELECTOR = '(//button[@aria-haspopup="dialog"])[1]'
-    PHONE_NUMBER_INPUT     = "#phoneNumber"
-    COUNTRY_SELECTOR       = "//label[contains(text(),'Country')]/following::button[@data-slot='popover-trigger'][1]"
-    UPDATE_BUTTON          = "button[type='submit']"
-    ERROR_MESSAGE          = "span.text-alert-500"
-    LOGO_PREVIEW           = 'img[src*="chatboq-blog-storage-s3"]'
-    REMOVE_IMG_BUTTON      = '(//button[@aria-label="Remove image"])'
+    FULL_NAME = "#fullName"
+    FILE_INPUT = 'input[type="file"]'
+    PHONE_COUNTRY_SELECTOR = 'button[aria-label="Select country calling code"]'
+    PHONE_NUMBER_INPUT = "#phoneNumber"
+    COUNTRY_SELECTOR = "//label[contains(text(),'Country')]/following::button[@data-slot='popover-trigger'][1]"
+    UPDATE_BUTTON = "button:contains('Update')"
+    ERROR_MESSAGE = "span.text-alert-500"
+    LOGO_PREVIEW = 'img[src*="chatboq-blog-storage-s3"]'
+    REMOVE_IMG_BUTTON = '(//button[@aria-label="Remove image"])'
 
     def __init__(self, sb):
         self.sb = sb

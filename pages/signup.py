@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import AUTH_URL
@@ -8,24 +9,25 @@ from config import AUTH_URL
 class SignupPage:
     URL = f"{AUTH_URL}/auth/login"
 
-    SIGNUP_BUTTON      = 'a[href="/auth/sign-up"]'
-    EMAIL_INPUT        = "#email"
-    PASSWORD_INPUT     = "#password"
+    SIGNUP_BUTTON = 'a[href="/auth/sign-up"]'
+    EMAIL_INPUT = "#email"
+    PASSWORD_INPUT = "#password"
     VERIFICATION_INPUT = "#token"
-    CONTINUE_BUTTON    = "button[type='submit']"
-    FULL_NAME_INPUT    = "#fullName"
-    DARK_MODE_BUTTON   = "#dark"
-    GOOGLE_SELECT      = 'span:contains("Google")'
-    ORG_NAME_INPUT     = "#name"
-    ORG_DOMAIN_INPUT   = "#domain"
-    ORG_DESC_INPUT     = "#description"
-    INDUSTRY_DROPDOWN  = "#onboarding\\.industry"
-    LOGO_UPLOAD        = "input[type='file']"
-    TEAM_SIZE          = 'span:contains("50-100 Employees")'
-    TOOL_NAME          = 'span:contains("Zendesk")'
-    SUCCESS_QUESTION   = 'span:contains("Automate Support Task")'
-    EMAIL_EXISTS       = "span.text-alert-500"
-   
+    CONTINUE_BUTTON = "button[type='submit']"
+    FULL_NAME_INPUT = "#fullName"
+    DARK_MODE_BUTTON = "#dark"
+    GOOGLE_SELECT = 'span:contains("Google")'
+    ORG_NAME_INPUT = "#name"
+    ORG_DOMAIN_INPUT = "#domain"
+    ORG_DESC_INPUT = "#description"
+    INDUSTRY_DROPDOWN = "#onboarding\\.industry"
+    LOGO_UPLOAD = "input[type='file']"
+    TEAM_SIZE = 'span:contains("50-100 Employees")'
+    TOOL_NAME = 'span:contains("Zendesk")'
+    SUCCESS_QUESTION = 'span:contains("Automate Support Task")'
+    EMAIL_EXISTS = "span.text-alert-500"
+    PASSWORD_ERROR = "#password ~ span.text-alert-500"
+    RETURN_TO_SIGNUP = 'button:contains("Return to Sign Up")'
 
     def __init__(self, sb):
         self.sb = sb
@@ -171,25 +173,45 @@ class SignupPage:
         self.sb.js_click('button:contains("Start")')
         self.sb.sleep(3)
         return self
-    
-    def clear_and_continue(self, email: str, password: str):
-        self.sb.clear(self.EMAIL_INPUT)
-        self.sb.clear(self.PASSWORD_INPUT)
-        self.enter_email(email)
-        self.enter_password(password)
-        self.click_continue_email()
-        return self
-    
+
+    # Negative ----------------- Signup Page For Email -------------------
     def get_error_message(self) -> str:
         self.sb.wait_for_element_visible(self.EMAIL_EXISTS, timeout=15)
         return self.sb.get_text(self.EMAIL_EXISTS)
-    
-    
+
+    def clear_and_continue(self, email: str, password: str):
+        if self.sb.get_attribute(self.EMAIL_INPUT, "disabled", hard_fail=False) is None:
+            # only touch email if it's actually editable
+            self.sb.clear(self.EMAIL_INPUT)
+            self.enter_email(email)
+
+        self.sb.clear(self.PASSWORD_INPUT)
+        self.enter_password(password)
+        self.click_continue_email()
+        return self
+
+    def get_all_error_messages(self) -> list[str]:
+        return self.sb.execute_script(
+            "return Array.from(document.querySelectorAll('span.text-alert-500'))"
+            ".map(el => el.textContent.trim());"
+        )
+
+    def click_return_to_signup(self):
+        self.sb.click(self.RETURN_TO_SIGNUP)
+        self.sb.uc_gui_handle_cf()
+        self.sb.wait_for_element_visible(self.EMAIL_INPUT, timeout=60)
+
     def is_continue_button_disabled(self) -> bool:
-        return self.sb.get_attribute(self.CONTINUE_BUTTON, "disabled") is not None
+        return (
+            self.sb.get_attribute(self.CONTINUE_BUTTON, "disabled", hard_fail=False)
+            is not None
+        )
 
     def is_continue_button_enabled(self) -> bool:
-        return self.sb.get_attribute(self.CONTINUE_BUTTON, "disabled") is None
+        return (
+            self.sb.get_attribute(self.CONTINUE_BUTTON, "disabled", hard_fail=False)
+            is None
+        )
 
     def is_org_continue_button_disabled(self) -> bool:
         return self.sb.execute_script("""
@@ -204,6 +226,3 @@ class SignupPage:
 
     def is_org_continue_button_enabled(self) -> bool:
         return not self.is_org_continue_button_disabled()
-        
-
-    

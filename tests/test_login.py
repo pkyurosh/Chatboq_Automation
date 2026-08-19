@@ -14,6 +14,7 @@ def login_page(request):
         yield page
 
 
+@pytest.mark.run(order=2)
 class TestLogin:
 
     def test_happy_path(self):

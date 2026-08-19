@@ -34,20 +34,14 @@ class OperatingHoursPage:
 
     def get_end_time(self, day_index: int) -> str:
         return self.sb.get_property(self._end_time(day_index), "value")
+    
+    def set_time_value(self, selector: str, hour: str, minute: str, meridiem: str):
+        """hour: '09', minute: '00', meridiem: 'A' or 'P'"""
+        self.sb.click(selector)
+        self.sb.type(selector, f"{hour}{minute}{meridiem}")
+        self.sb.sleep(0.5)
 
-    def _set_native_time_value(self, selector: str, value: str):
-        script = """
-            const input = document.querySelector(arguments[0]);
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-                window.HTMLInputElement.prototype, 'value'
-            ).set;
-            nativeInputValueSetter.call(input, arguments[1]);
-            const event = new Event('input', { bubbles: true });
-            input.dispatchEvent(event);
-        """
-        self.sb.execute_script(script, selector, value)
-
-    def set_day_hours(self, day_index: int, start_time: str = None, end_time: str = None, enabled: bool = True):
+    def set_day_hours(self, day_index: int, start_time: tuple = None, end_time: tuple = None, enabled: bool = True):
         checkbox = self._checkbox(day_index)
         is_checked = self.is_day_enabled(day_index)
 
@@ -59,17 +53,13 @@ class OperatingHoursPage:
         if enabled and start_time and end_time:
             start_input = self._start_time(day_index)
             end_input = self._end_time(day_index)
-            self.sb.click(start_input)
-            self.sb.clear(start_input)
-            self.sb.type(start_input, start_time)
-            self.sb.click(end_input)
-            self.sb.clear(end_input)
-            self.sb.type(end_input, end_time)
+            self.set_time_value(start_input, *start_time)
+            self.set_time_value(end_input, *end_time)
 
         self.sb.sleep(1)
         return self
 
-    def click_update_button(self):
+    def click_save_changes_button(self):
         self.sb.click(self.SAVE_CHANGES_BUTTON)
         self.sb.sleep(2)
         return self
