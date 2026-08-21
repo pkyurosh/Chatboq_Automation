@@ -1,19 +1,10 @@
 import pytest
 from seleniumbase import SB
 from pages.lead import LeadPage
-from utils.session_manager import inject_session
+from tests.conftest import make_authenticated_page_fixture
 from utils.test_data import get_random_email
 
-
-@pytest.fixture(scope="class")
-def lead_page(request):
-    with SB(uc=True) as sb:
-        inject_session(sb)
-        page = LeadPage(sb)
-        page.open()
-        request.cls.page = page
-        request.cls.sb = sb
-        yield page
+lead_page = make_authenticated_page_fixture(LeadPage)
 
 
 @pytest.mark.run(order=6)

@@ -25,9 +25,12 @@ class SignupPage:
     TEAM_SIZE = 'span:contains("50-100 Employees")'
     TOOL_NAME = 'span:contains("Zendesk")'
     SUCCESS_QUESTION = 'span:contains("Automate Support Task")'
-    EMAIL_EXISTS = "span.text-alert-500"
-    PASSWORD_ERROR = "#password ~ span.text-alert-500"
     RETURN_TO_SIGNUP = 'button:contains("Return to Sign Up")'
+
+    # Toast-style error (e.g. duplicate email/org at submit time)
+    ERROR_MESSAGE = "div[data-title]"
+    # Inline field-level error (password, full name, verification code, etc.)
+    INLINE_ERROR_MESSAGE = "span.text-alert-500"
 
     def __init__(self, sb):
         self.sb = sb
@@ -176,8 +179,18 @@ class SignupPage:
 
     # Negative ----------------- Signup Page For Email -------------------
     def get_error_message(self) -> str:
-        self.sb.wait_for_element_visible(self.EMAIL_EXISTS, timeout=15)
-        return self.sb.get_text(self.EMAIL_EXISTS)
+        """
+        Returns the first error message found, checking the toast-style
+        selector first, then falling back to the inline field-level
+        selector. Use this for errors that could appear either way
+        (e.g. duplicate email/org submit errors).
+        """
+        try:
+            self.sb.wait_for_element_visible(self.ERROR_MESSAGE, timeout=8)
+            return self.sb.get_text(self.ERROR_MESSAGE)
+        except Exception:
+            self.sb.wait_for_element_visible(self.INLINE_ERROR_MESSAGE, timeout=8)
+            return self.sb.get_text(self.INLINE_ERROR_MESSAGE)
 
     def clear_and_continue(self, email: str, password: str):
         if self.sb.get_attribute(self.EMAIL_INPUT, "disabled", hard_fail=False) is None:
@@ -191,6 +204,10 @@ class SignupPage:
         return self
 
     def get_all_error_messages(self) -> list[str]:
+        """
+        Returns all inline field-level error messages currently visible
+        (e.g. password rules, full name validation, verification code).
+        """
         return self.sb.execute_script(
             "return Array.from(document.querySelectorAll('span.text-alert-500'))"
             ".map(el => el.textContent.trim());"
@@ -199,7 +216,11 @@ class SignupPage:
     def click_return_to_signup(self):
         self.sb.click(self.RETURN_TO_SIGNUP)
         self.sb.uc_gui_handle_cf()
-        self.sb.wait_for_element_visible(self.EMAIL_INPUT, timeout=60)
+        self.sb.wait_for_element_visible(self.EMAIL_INPUT, timeout=20)
+        self.sb.refresh()
+        self.sb.wait_for_element_visible(
+            self.EMAIL_INPUT, timeout=20
+        )  # Clears the previous state and ensures the email input is visible
 
     def is_continue_button_disabled(self) -> bool:
         return (

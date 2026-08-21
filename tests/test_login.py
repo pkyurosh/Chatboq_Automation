@@ -17,7 +17,7 @@ def login_page(request):
 @pytest.mark.run(order=2)
 class TestLogin:
 
-    def test_happy_path(self):
+    def test_happy_path(self):                                                      
         with SB(uc=True) as sb:
             page = LoginPage(sb)
             page.open()

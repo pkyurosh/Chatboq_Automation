@@ -1,5 +1,4 @@
 import json
-
 import pytest
 from seleniumbase import SB
 from pages.signup import SignupPage
@@ -19,14 +18,11 @@ from config import (
 
 @pytest.fixture(scope="class")
 def signup_page(request):
-    with SB(uc=True, time_limit=300) as sb:
+    with SB(uc=True) as sb:
         page = SignupPage(sb)
-        page.open()
-        page.click_signup()
-
+        page.open()  # open and solve Cloudflare ONCE
         email = get_temp_email()
         print(f"\nUsing email: {email}")
-
         request.cls.email = email
         request.cls.page = page
         request.cls.sb = sb
@@ -132,8 +128,8 @@ class TestNegativeSignup:
         self.page.click_continue_email()
         error = self.page.get_error_message()
         assert (
-            "A user with this email already exists" in error
-        ), f"Expected'user already exists but got:' {error}"
+            "User with this email already exists" in error
+        ), f"Expected 'User with this email already exists' but got: {error}"
 
     @pytest.mark.parametrize(
         "password,expected_error",
@@ -167,10 +163,10 @@ class TestNegativeSignup:
     def test_wrong_verification_code(self):
         self.page.enter_verification_code("12345532")
         self.page.click_continue_verification()
-        error = self.page.get_error_message()
-        assert (
-            "Code must be exactly 6 digits" in error
-        ), f"Expected 'Code must be exactly 6 digits but got {error}'"
+        all_errors = self.page.get_all_error_messages()
+        assert any(
+            "Code must be exactly 6 digits" in err for err in all_errors
+        ), f"Expected 'Code must be exactly 6 digits' in: {all_errors}"
 
     # get verification code from mailsac and log into the system
 
@@ -193,11 +189,13 @@ class TestNegativeSignup:
     )
     def test_invalid_full_name(self, full_name, expected_error):
         self.page.enter_full_name(full_name)
-        error = self.page.get_error_message()
-        assert expected_error in error, f"Expected '{expected_error}' but got: {error}"
+        all_errors = self.page.get_all_error_messages()
+        assert any(
+            expected_error in err for err in all_errors
+        ), f"Expected '{expected_error}' in: {all_errors}"
         assert (
             self.page.is_continue_button_disabled()
-        ), "Login Button should be disabled"
+        ), "Continue button should be disabled"
 
     def test_valid_full_name_no_selector(self):
         self.page.enter_full_name(SIGNUP_NAME)

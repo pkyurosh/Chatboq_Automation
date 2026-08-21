@@ -1,14 +1,17 @@
-
 from config import AUTH_URL
 
 
 class LoginPage:
     URL = f"{AUTH_URL}/auth/login"
 
-    USERNAME_INPUT = "#email"       # CSS selector for By.ID "email"
-    PASSWORD_INPUT = "#password"    # CSS selector for By.ID "password"
-    LOGIN_BUTTON   = "button[type='submit']"
-    ERROR_MESSAGE  = "span.text-alert-500"
+    USERNAME_INPUT = "#email"  # CSS selector for By.ID "email"
+    PASSWORD_INPUT = "#password"  # CSS selector for By.ID "password"
+    LOGIN_BUTTON = "button[type='submit']"
+
+    # Toast-style error (e.g. invalid credentials at submit time)
+    ERROR_MESSAGE = "div[data-title]"
+    # Inline field-level error (e.g. invalid email format)
+    INLINE_ERROR_MESSAGE = "span.text-alert-500"
 
     def __init__(self, sb):
         self.sb = sb  # SeleniumBase instance, not raw driver
@@ -37,14 +40,32 @@ class LoginPage:
     def is_logged_in(self) -> bool:
         try:
             self.sb.sleep(5)
-            return"/app" in self.sb.get_current_url()
+            return "/app" in self.sb.get_current_url()
         except Exception:
             return False
-        
+
     def get_error_message(self) -> str:
-        self.sb.wait_for_element_visible(self.ERROR_MESSAGE, timeout=10)
-        return self.sb.get_text(self.ERROR_MESSAGE)
-    
+        """
+        Returns the first error message found, checking the toast-style
+        selector first, then falling back to the inline field-level
+        selector.
+        """
+        try:
+            self.sb.wait_for_element_visible(self.ERROR_MESSAGE, timeout=8)
+            return self.sb.get_text(self.ERROR_MESSAGE)
+        except Exception:
+            self.sb.wait_for_element_visible(self.INLINE_ERROR_MESSAGE, timeout=8)
+            return self.sb.get_text(self.INLINE_ERROR_MESSAGE)
+
+    def get_all_error_messages(self) -> list[str]:
+        """
+        Returns all inline field-level error messages currently visible.
+        """
+        return self.sb.execute_script(
+            "return Array.from(document.querySelectorAll('span.text-alert-500'))"
+            ".map(el => el.textContent.trim());"
+        )
+
     def clear_and_login(self, username: str, password: str):
         self.sb.clear(self.USERNAME_INPUT)
         self.sb.clear(self.PASSWORD_INPUT)
@@ -52,7 +73,6 @@ class LoginPage:
         self.enter_password(password)
         self.click_login()
         return self
-    
+
     def is_login_button_disabled(self) -> bool:
-        return self.sb.get_attribute(self.LOGIN_BUTTON, "disabled") is not None 
-    
+        return self.sb.get_attribute(self.LOGIN_BUTTON, "disabled") is not None

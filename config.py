@@ -15,6 +15,13 @@ LEAD_URL = os.getenv(
     "LEAD_URL",
     "https://stagingv2.chatboq.com/app/e9c01680-2c88-43b8-a55c-dcfc1ce0b4f9/lead",
 )
+
+INBOX_URL = os.getenv(
+    "INBOX_URL",
+    "https://stagingv2.chatboq.com/app/e9c01680-2c88-43b8-a55c-dcfc1ce0b4f9/default-inbox",
+)
+
+
 TIMEOUT = int(os.getenv("TIMEOUT", 10))
 
 # Login credentials

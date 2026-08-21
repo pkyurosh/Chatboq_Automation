@@ -1,7 +1,7 @@
 import pytest
 from seleniumbase import SB
 from pages.accountsettings import AccountSettingsPage
-from utils.session_manager import inject_session
+from tests.conftest import make_authenticated_page_fixture
 from utils.test_data import get_random_account_name
 from config import SIGNUP_LOGO_PATH
 
@@ -11,15 +11,7 @@ INVALID_PHONE_NUMBERS = [
 ]
 
 
-@pytest.fixture(scope="class")
-def account_settings_page(request):
-    with SB(uc=True) as sb:
-        inject_session(sb)
-        page = AccountSettingsPage(sb)
-        page.open()
-        request.cls.page = page
-        request.cls.sb = sb
-        yield page
+account_settings_page = make_authenticated_page_fixture(AccountSettingsPage)
 
 
 @pytest.mark.run(order=3)
