@@ -14,11 +14,13 @@ class TestInbox:
 
     def test_select_conversation(self):
         self.page.select_conversation()
-        self.sb.assert_url_contains(
-            "conversation=7cfb3f59-6863-4989-8c87-a8e0331d3651"
-        )  # Confirms if the conversatio is successfully selected by checking the URL for the conversation ID
+        self.sb.assert_url_contains("conversation=7cfb3f59-6863-4989-8c87-a8e0331d3651")
 
-    def test_type_message(self):
-        message = "Hello, this is a test message."
-        self.page.type_message(message)
-        # Here you might want to add an assertion to check if the message was sent successfully
+    def test_send_5_messages(self):
+        self.page.send_bulk_messages(count=5)
+
+    def test_reply_to_last_message(self):
+        self.page.reply_to_message(
+            "Hello this is testing message 5",
+            "Replied text......",
+        )
